@@ -34,7 +34,6 @@
 </template>
 
 <script setup>
-  import { defineProps } from 'vue';
   import { useStore } from '@/stores/store.js';
   const props = defineProps(['msg'])
 

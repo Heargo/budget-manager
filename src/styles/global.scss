@@ -3,7 +3,7 @@
 @import url('https://fonts.googleapis.com/css2?family=Sarpanch:wght@600&display=swap');
 @import url('https://fonts.googleapis.com/css2?family=BioRhyme:wght@300;400;700;800&display=swap');
 @import url('https://fonts.googleapis.com/css2?family=Raleway:ital,wght@0,200;0,400;0,800;0,900;1,200;1,400;1,800;1,900&display=swap');
-
+@import url('https://fonts.googleapis.com/css2?family=Quicksand:wght@300;400;500;600;700&family=The+Nautigal:wght@700&display=swap');
 //-------------------------------
 //-----------VARIABLES-----------
 //-------------------------------
@@ -16,15 +16,10 @@ $dark-blue: #14213D;
 $grey: #E5E5E5;
 
 
-$dark:#22223b;
-$dark2: rgb(34, 34, 59,0.85);
-$blue:#4a4e69;
-$better-blue: #273494;
-$marron:#9a8c98;
-$marronlight:#c9ada7;
-$white:#f2e9e4;
-
-$formbgcolor: $grey;
+$bg: #F5F5F5;
+$bg2: #f1f1f1;
+$txt: #292929;
+$highlight: #953fa0;
 
 //---------------------------------
 //-----------BREAKPOINTS-----------
@@ -48,7 +43,11 @@ $formbgcolor: $grey;
 //----------------------------------
 
 *{
-    font-family: 'Raleway', sans-serif;
+    font-family: 'Quicksand', sans-serif;
+    color:$txt;
+}
+.highlight{
+    background-color:$highlight;
 }
 
 .noselect {
