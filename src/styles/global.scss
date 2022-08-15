@@ -8,18 +8,18 @@
 //-----------VARIABLES-----------
 //-------------------------------
 
-$red:rgb(223, 52, 52);
-$dark-red :#64141ecc;
+$red:#e63946;
+$dark-red :#840032;
 $white: white;
-$orange: #FCA311;
+$orange: #e59500;
 $dark-blue: #14213D;
 $grey: #E5E5E5;
 
 
-$bg: #F5F5F5;
-$bg2: #f1f1f1;
-$txt: #292929;
-$highlight: #953fa0;
+$bg: #ffffff;
+$bg2: #e5e5e5;
+$txt: #14213d;
+$highlight: #fca311;
 
 //---------------------------------
 //-----------BREAKPOINTS-----------
@@ -58,4 +58,4 @@ $highlight: #953fa0;
           -ms-user-select: none; /* Internet Explorer/Edge */
               user-select: none; /* Non-prefixed version, currently
                                     supported by Chrome, Edge, Opera and Firefox */
-  }
+}

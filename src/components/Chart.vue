@@ -94,6 +94,9 @@ export default {
 }
 </script>
 <style lang="scss">
+    .chartContainer{
+        max-width: 50vh;
+    }
     .myStat{
         display: flex;
         flex-direction: column;

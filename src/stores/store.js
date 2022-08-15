@@ -6,30 +6,8 @@ export const useStore = defineStore('main', {
     state: () => {
         return {
             count:0,
-            savings:700,
-            spendings:[
-                {
-                    id:1,
-                    name:"Bar integration",
-                    amount:18,
-                    category:"party",
-                    date:new Date()
-                },
-                {
-                    id:11,
-                    name:"Bar integration",
-                    amount:18,
-                    category:"party",
-                    date:new Date()
-                },
-                {
-                    id:2,
-                    name:"Loyer",
-                    amount:430,
-                    category:"logement",
-                    date:new Date()
-                },
-            ],
+            savings:JSON.parse(localStorage.getItem('savingPerMonth')) || 0,
+            spendings:JSON.parse(localStorage.getItem('spendings')) || [],
             categories:{
                 party:{
                     icon:"biere.png",
@@ -44,7 +22,7 @@ export const useStore = defineStore('main', {
         }
       },
       actions: {
-        genrateID(str){
+        generateID(str){
             var hash = 0, i, chr;
             if (str.length === 0) return hash;
             for (i = 0; i < str.length; i++) {
@@ -57,7 +35,7 @@ export const useStore = defineStore('main', {
         addSpending(data){
             this.spendings.push(data);
             //add id to the spending (id is the hash of name and date)
-            data.id = genrateID(data.name.toString() + data.date.toString());
+            data.id = this.generateID(data.name + data.date);
             //update local storage
             localStorage.setItem('spendings', JSON.stringify(this.spendings));
         },
@@ -66,17 +44,16 @@ export const useStore = defineStore('main', {
             //update local storage
             localStorage.setItem('spendings', JSON.stringify(this.spendings));
         },
-        getSpendingsByCategory(showSavings){
-            console.log(this.categories)
+        getSpendingsByCategory(showSavings,month){
             var x = Object.keys(this.categories);
             //get all colors of categories
             var colors = x.map(key => this.categories[key].color);
             var values=[]
             for(var i=0;i<x.length;i++){
-                //get total amount of spendings by category
-                var total = this.spendings.reduce((acc, cur) => {
-                    if(cur.category === x[i]){
-                        return acc + cur.amount;
+                //get total amount of spendings by category for the month
+                var total = this.spendings.reduce((acc, spending) => {
+                    if(spending.category === x[i] && spending.date.split("-")[1] == month){
+                        return acc + spending.amount;
                     }
                     return acc;
                 }
@@ -87,8 +64,14 @@ export const useStore = defineStore('main', {
             if(showSavings){
                 x.push("savings");
                 //value is the savings - total amount of spendings
-                values.push(this.savings - values.reduce((acc, cur) => acc + cur, 0));
-                colors.push("#F7F7F7");
+                var savingsRemaining = this.savings - values.reduce((acc, cur) => acc + cur, 0);
+                values.push(savingsRemaining);
+                console.log(savingsRemaining);
+                if(savingsRemaining < 0){
+                    colors.push("red");
+                }else{
+                    colors.push("#F7F7F7");
+                }
             }
 
             return{
@@ -97,8 +80,7 @@ export const useStore = defineStore('main', {
                 colors:colors
             }
 
-        }
-
+        },
 
 
       },

@@ -7,7 +7,7 @@
                 <p class="name">{{spending.name}}</p>
             </div>
         </div>
-        <p class="date">{{spending.date.toLocaleDateString('fr-FR', {year: 'numeric', month: 'numeric', day: 'numeric'})}}</p>
+        <p class="date">{{new Date(spending.date).toLocaleDateString('fr-FR', {year: 'numeric', month: 'numeric', day: 'numeric'})}}</p>
     </div>
 </template>
 <script setup>
@@ -29,7 +29,7 @@ const onCreated = function() {
         flex-direction: row;
         align-items: center;
         justify-content: space-between;
-        width: 100%;
+        width: 95%;
         max-width: 800px;
         background-color: $bg2;
         border-radius: 15px;
@@ -40,6 +40,10 @@ const onCreated = function() {
             border-radius: 15px;
             padding: 0.5rem;
             margin-right: 1rem;
+            @include width-under(500px){
+                width: 30px;
+                height: 30px;
+            }
         }
         //left content
         div{
@@ -56,15 +60,24 @@ const onCreated = function() {
                 .amout{
                     margin:0;
                     font-size: 2em;
+                    color:$txt;
+                    @include width-under(500px){
+                        font-size: 1.6em;
+                    }
                 }
                 .name{
                     margin:0;
                     font-size: 1em;
+                    color:$txt;
+                    @include width-under(500px){
+                        font-size: 0.8em;
+                    }
                 }
             }
         }
         .date{
             margin: 0.8rem;
+            color:$txt;
         }
     }
 </style>
