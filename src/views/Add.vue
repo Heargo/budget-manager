@@ -69,5 +69,20 @@ form{
         width: calc(80% + 1rem ); 
         font-size: 1.5rem;
     }
+    button{
+        width: 50%;
+        max-width:150px;
+        height: 2rem;
+        padding: 0.1rem 0.5rem;
+        margin: 0.2rem 0;
+        margin-top: 2rem;
+        border-radius: 15px;
+        outline:none;
+        border:1px solid $txt;
+        background-color: $bg;
+        color: $txt;
+        font-size: 1.2rem;
+        cursor: pointer;
+    }
 }
 </style>
