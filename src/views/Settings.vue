@@ -2,7 +2,7 @@
     <div>
         <h1>Settings</h1>
         <form>
-            <input type="number" step="0.01" placeholder="default Budget/month" v-model="budget">
+            <input type="number" step="0.01" placeholder="Savings" v-model="budget">
             <div>
                 <input type="color" class="categoryColor" v-model="categoryColor">
                 <IconSelector @selected="setIcon"></IconSelector>

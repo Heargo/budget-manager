@@ -14,7 +14,7 @@
       width="80vw"
       >
     </Chart>
-    <Spending v-for="spending in store.spendings.filter(s => s.date.split('-')[1] == month)" :key="spending.name" :spending="spending"></Spending>
+    <Spending v-for="spending in store.spendings.filter(s => s.date.split('-')[1] == month).slice().reverse()" :key="spending.name" :spending="spending"></Spending>
   </div>
 </template>
 
@@ -29,10 +29,11 @@ const date = new Date();
 //get month in string
 const month = date.getMonth()+1;
 
-var data = store.getSpendingsByCategory(true, month);
+var data = store.getSpendingsByCategory(false, month);
+console.log(data)
 var s = {
   typeChart: 'pie',
-  title: 'dzazd',
+  title: '',
   x: data.x,
   y: data.y,
   colors:data.colors,

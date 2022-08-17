@@ -1,6 +1,6 @@
 <template>
     <div class="myStat" >
-        <div class="chartContainer" :style="{width:width,height:height}">
+        <div class="chartContainer" :class="{'pie':typeChart=='pie','other':typeChart!='pie'}" :style="{width:width,height:height}">
             <canvas id="myChart"></canvas>
             <h1 class="title" v-if="options.plugins.title.display">{{ title }}</h1>
         </div>
@@ -95,13 +95,19 @@ export default {
 </script>
 <style lang="scss">
     .chartContainer{
-        max-width: 50vh;
-    }
-    .myStat{
         display: flex;
-        flex-direction: column;
+        flex-direction: row;
         align-items: center;
         justify-content: center;
+        margin:auto;
+        &.pie{
+            max-width: 50vh;
+        }
+        &.other{
+            max-width: min(700px,100vw);
+        }
+    }
+    .myStat{
         margin:2rem 0;
         // border:solid 1px red;
     }
