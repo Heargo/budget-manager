@@ -1,5 +1,5 @@
 {
-  "name": "pwa",
+  "name": "MinimalBudget",
   "version": "0.1.0",
   "private": true,
   "scripts": {
@@ -8,6 +8,7 @@
     "lint": "vue-cli-service lint"
   },
   "dependencies": {
+    "chart.js": "^3.8.0",
     "core-js": "^3.8.3",
     "pinia": "^2.0.16",
     "register-service-worker": "^1.7.2",
