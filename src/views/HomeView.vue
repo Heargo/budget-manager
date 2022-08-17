@@ -14,7 +14,7 @@
       width="80vw"
       >
     </Chart>
-    <Spending v-for="spending in store.getMonthSpendings(month)" :key="spending.name" :spending="spending"></Spending>
+    <Spending v-for="spending in store.getMonthSpendings(month)" :key="spending.name" :spending="spending" :showDelete="false"></Spending>
   </div>
 </template>
 
@@ -27,7 +27,7 @@ const store = useStore();
 //new date
 const date = new Date();
 //move to next month
-date.setMonth(date.getMonth() + 1);
+// date.setMonth(date.getMonth() + 1);
 //get month in string
 const month = date.getMonth()+1;
 

@@ -63,6 +63,13 @@ export const useStore = defineStore('main', {
             //update local storage
             localStorage.setItem('spendings', JSON.stringify(this.spendings));
         },
+        deleteSpending(id){
+            if(!confirm("Are you sure you want to delete this transaction?")) return;
+            
+            console.log("deleteSpending",id);
+            this.spendings = this.spendings.filter(spending => spending.id !== id);
+            localStorage.setItem('spendings', JSON.stringify(this.spendings));
+        },
         removeSpending(id){
             this.spendings = this.spendings.filter(spending => spending.id !== id);
             //update local storage

@@ -8,6 +8,7 @@
             </div>
         </div>
         <p class="date">{{new Date(spending.date).toLocaleDateString('fr-FR', {year: 'numeric', month: 'numeric', day: 'numeric'})}}</p>
+        <img v-if="showDelete" class="delete" src="@/assets/svg/close-outline.svg" alt="delete" @click="store.deleteSpending(spending.id)">
     </div>
 </template>
 <script setup>
@@ -15,7 +16,7 @@ import { useStore } from '@/stores/store.js';
 
 const store = useStore();
 //props
-const props = defineProps(['spending'])
+const props = defineProps(['spending','showDelete']);
 
 //on created
 const onCreated = function() {
@@ -25,6 +26,7 @@ const onCreated = function() {
 </script>
 <style lang="scss" scoped>
     .spending {
+        position:relative;
         display: flex;
         flex-direction: row;
         align-items: center;
@@ -43,6 +45,17 @@ const onCreated = function() {
             @include width-under(500px){
                 width: 30px;
                 height: 30px;
+            }
+            &.delete{
+                position: absolute;
+                right: -0.5rem;
+                top: -0.5rem;
+                cursor: pointer;
+                background-color:$red;
+                padding: 0;
+                margin:0;
+                width: 1.5rem;
+                height: 1.5rem;
             }
         }
         //left content
@@ -80,4 +93,5 @@ const onCreated = function() {
             color:$txt;
         }
     }
+    
 </style>
