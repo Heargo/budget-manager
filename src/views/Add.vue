@@ -1,6 +1,6 @@
 <template>
     <div>
-        <h2>New spending</h2>
+        <h2>New Transaction</h2>
         <form>
             <input type="number" step="0.01" id="name" v-model="amount" placeholder="XX€">
             <input type="text" id="number" v-model="name" placeholder="Name">
@@ -11,7 +11,7 @@
             </select>
             <input type="date" id="date" v-model="date" placeholder="Date">
 
-            <button @click="addSpending">Add</button>
+            <button @click="addTransaction">Add</button>
         </form>
     </div>
 </template>
@@ -28,7 +28,7 @@ var category = ref(null);
 var date = ref(null);
 const router = useRouter()
 
-const addSpending = function() {
+const addTransaction = function() {
     if (amount.value==0 || name.value=="" || category.value=="" || name.value==null || category.value==null) {
         alert("Please fill all fields");
         return;
@@ -37,7 +37,7 @@ const addSpending = function() {
         date.value = new Date().toLocaleDateString("en-CA");
     }
     var data = {amount:amount.value, name:name.value, category:category.value.value,date:date.value}
-    store.addSpending(data);
+    store.addTransaction(data);
     amount.value = null;
     name.value = null;
     category.value = null;

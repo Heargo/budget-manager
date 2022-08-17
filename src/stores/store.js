@@ -39,7 +39,7 @@ export const useStore = defineStore('main', {
         return {
             count:0,
             // savings:JSON.parse(localStorage.getItem('savings')) || null,
-            spendings:JSON.parse(localStorage.getItem('spendings')) || [],
+            transactions:JSON.parse(localStorage.getItem('transactions')) || [],
             categories:initCategories(),
 
         }
@@ -55,39 +55,34 @@ export const useStore = defineStore('main', {
             }
             return hash;
         },
-        addSpending(data){
-            console.log("addSpending",data);
-            this.spendings.push(data);
-            //add id to the spending (id is the hash of name and date)
+        addTransaction(data){
+            console.log("addTransactions",data);
+            this.transactions.push(data);
+            //add id to the transaction (id is the hash of name and date)
             data.id = this.generateID(data.name + data.date);
             //update local storage
-            localStorage.setItem('spendings', JSON.stringify(this.spendings));
+            localStorage.setItem('transactions', JSON.stringify(this.transactions));
         },
-        deleteSpending(id){
+        deleteTransaction(id){
             if(!confirm("Are you sure you want to delete this transaction?")) return;
             
-            console.log("deleteSpending",id);
-            this.spendings = this.spendings.filter(spending => spending.id !== id);
-            localStorage.setItem('spendings', JSON.stringify(this.spendings));
+            console.log("delete transaction",id);
+            this.transactions = this.transactions.filter(transaction => transaction.id !== id);
+            localStorage.setItem('transactions', JSON.stringify(this.transactions));
         },
-        removeSpending(id){
-            this.spendings = this.spendings.filter(spending => spending.id !== id);
-            //update local storage
-            localStorage.setItem('spendings', JSON.stringify(this.spendings));
-        },
-        getMonthSpendings(month){
-            return this.spendings.filter(s => s.date.split('-')[1] == month).slice().reverse()
+        getMonthTransactions(month){
+            return this.transactions.filter(s => s.date.split('-')[1] == month).slice().reverse()
         },
         previousRemaningMonthBudget(month){
             var previousMonth = month - 1;
             if(previousMonth === 0){
                 previousMonth = 12;
             }
-            var previousMonthBudget = this.spendings.reduce((acc, spending) => {
-                if(spending.category === "monthly budget" && spending.date.split("-")[1] == previousMonth){
-                    return acc + parseFloat(spending.amount);
-                }else if(spending.category != "savings" && spending.date.split("-")[1] == previousMonth){
-                    return acc - parseFloat(spending.amount);
+            var previousMonthBudget = this.transactions.reduce((acc, transaction) => {
+                if(transaction.category === "monthly budget" && transaction.date.split("-")[1] == previousMonth){
+                    return acc + parseFloat(transaction.amount);
+                }else if(transaction.category != "savings" && transaction.date.split("-")[1] == previousMonth){
+                    return acc - parseFloat(transaction.amount);
                 }
                 return acc;
             },0);
@@ -105,7 +100,7 @@ export const useStore = defineStore('main', {
                 date.setMonth(month-1); //set month as parameter
                 date.setDate(-1); //get previous month
 
-                this.addSpending({
+                this.addTransaction({
                     name:"Transfer remaining budget to savings",
                     amount:-previousMonthBudget,
                     category:"monthly budget",
@@ -113,7 +108,7 @@ export const useStore = defineStore('main', {
                 });
             }
         },
-        getSpendingsByCategory(showSavings,month){
+        getTransactionsByCategory(showSavings,month){
             
             //get all months categories
             var x = Object.keys(this.categories);
@@ -125,10 +120,10 @@ export const useStore = defineStore('main', {
             var colors = x.map(key => this.categories[key].color);
             var values=[]
             for(var i=0;i<x.length;i++){
-                //get total amount of spendings by category for the month
-                var total = this.spendings.reduce((acc, spending) => {
-                    if(spending.category === x[i] && spending.date.split("-")[1] == month){
-                        return acc + parseFloat(spending.amount);
+                //get total amount of transactions by category for the month
+                var total = this.transactions.reduce((acc, transaction) => {
+                    if(transaction.category === x[i] && transaction.date.split("-")[1] == month){
+                        return acc + parseFloat(transaction.amount);
                     }
                     return acc;
                 }
@@ -136,7 +131,7 @@ export const useStore = defineStore('main', {
                 values.push(total);
             }
             //if no monthly budget for the month add one.
-            var monthlyBudget = this.spendings.filter(spending => spending.category === "monthly budget" && spending.date.split("-")[1] == month);
+            var monthlyBudget = this.transactions.filter(transaction => transaction.category === "monthly budget" && transaction.date.split("-")[1] == month);
             console.log("monthlyBudget for "+month,monthlyBudget);
             if(monthlyBudget.length==0 && this.getSavings()>0){
                 console.log("no monthly budget for the month, adding one");
@@ -146,7 +141,7 @@ export const useStore = defineStore('main', {
                 var monthlyBudget = this.getSavings()/(11-(month-8)%12);
                 var date = new Date();
                 date.setMonth(month-1); //for test purpose (-1 because month is 0-11)
-                this.addSpending({
+                this.addTransaction({
                     name:"Default budget",
                     amount:monthlyBudget.toFixed(2),
                     date:date.toLocaleDateString("en-CA"),
@@ -180,10 +175,10 @@ export const useStore = defineStore('main', {
 
         },
         getSavings(){
-            //get all value in spendings with category savings
-            var savings = this.spendings.reduce((acc, spending) => {
-                if(spending.category === "savings"){
-                    return acc + parseFloat(spending.amount);
+            //get all value in transactions with category savings
+            var savings = this.transactions.reduce((acc, transaction) => {
+                if(transaction.category === "savings"){
+                    return acc + parseFloat(transaction.amount);
                 }
                 return acc;
             },0);
@@ -193,10 +188,10 @@ export const useStore = defineStore('main', {
         deleteCategory(category){
             if (confirm('Are you sure you want to delete the category <'+category+'>?')) {
                 delete this.categories[category];
-                //delete all spendings with this category
-                this.spendings = this.spendings.filter(spending => spending.category !== category);
+                //delete all transactions with this category
+                this.transactions = this.transactions.filter(transaction => transaction.category !== category);
                 //update local storage
-                localStorage.setItem('spendings', JSON.stringify(this.spendings));
+                localStorage.setItem('transactions', JSON.stringify(this.transactions));
                 localStorage.setItem('categories', JSON.stringify(this.categories));
             }
         },
@@ -208,46 +203,46 @@ export const useStore = defineStore('main', {
             localStorage.setItem('categories', JSON.stringify(this.categories));
         },
         getSavingsUntil(month){
-            var savings = this.spendings.reduce((acc, spending) => {
-                if(spending.category == "savings" && MONTH_ORDER.indexOf(INT_TO_MONTH[spending.date.split("-")[1]])<=MONTH_ORDER.indexOf(month)){
-                    return acc + parseFloat(spending.amount);
+            var savings = this.transactions.reduce((acc, transaction) => {
+                if(transaction.category == "savings" && MONTH_ORDER.indexOf(INT_TO_MONTH[transaction.date.split("-")[1]])<=MONTH_ORDER.indexOf(month)){
+                    return acc + parseFloat(transaction.amount);
                 }
                 return acc;
             },0);
             return savings;
         },
-        getSpendingsUntil(month){
-            var savings = this.spendings.reduce((acc, spending) => {
-                if(spending.category != "savings" && MONTH_ORDER.indexOf(INT_TO_MONTH[parseInt(spending.date.split("-")[1])])<=MONTH_ORDER.indexOf(month)){
-                    return acc + parseFloat(spending.amount);
+        getTransactionsUntil(month){
+            var savings = this.transactions.reduce((acc, transaction) => {
+                if(transaction.category != "savings" && MONTH_ORDER.indexOf(INT_TO_MONTH[parseInt(transaction.date.split("-")[1])])<=MONTH_ORDER.indexOf(month)){
+                    return acc + parseFloat(transaction.amount);
                 }
                 return acc;
             },0);
             return savings;
         },
-        getSpendingsByMonth(category)
+        getTransactionsByMonth(category)
         {
             if(category == "savings"){
-                var spendings = this.spendings.filter(spending => spending.category != category);
+                var transactions = this.transactions.filter(transaction => transaction.category != category);
             }else{
-                var spendings = this.spendings.filter(spending => spending.category === category);
+                var transactions = this.transactions.filter(transaction => transaction.category === category);
             }
-            var spendingsByMonth = [0,0,0,0,0,0,0,0,0,0,0,0];
-            for(var i=0;i<spendings.length;i++){
-                var date = spendings[i].date.split("-");
+            var transactionsByMonth = [0,0,0,0,0,0,0,0,0,0,0,0];
+            for(var i=0;i<transactions.length;i++){
+                var date = transactions[i].date.split("-");
                 var month = parseInt(date[1]);                    
-                spendingsByMonth[MONTH_ORDER.indexOf(INT_TO_MONTH[month])] += spendings[i].amount;
+                transactionsByMonth[MONTH_ORDER.indexOf(INT_TO_MONTH[month])] += transactions[i].amount;
             }
 
             //case category is savings
             if(category == "savings"){
                 MONTH_ORDER.forEach((month,index) => {
-                    spendingsByMonth[index] = this.getSavingsUntil(month) - this.getSpendingsUntil(month);
+                    transactionsByMonth[index] = this.getSavingsUntil(month) - this.getTransactionsUntil(month);
                 });
             }
 
             //array of months
-            return {x:MONTH_ORDER,y:Object.values(spendingsByMonth),colors:this.categories[category].color};
+            return {x:MONTH_ORDER,y:Object.values(transactionsByMonth),colors:this.categories[category].color};
         }
 
 

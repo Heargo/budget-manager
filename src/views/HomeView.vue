@@ -14,7 +14,7 @@
       width="80vw"
       >
     </Chart>
-    <Spending v-for="spending in store.getMonthSpendings(month)" :key="spending.name" :spending="spending" :showDelete="false"></Spending>
+    <Spending v-for="transaction in store.getMonthTransactions(month)" :key="transaction.name" :transaction="transaction" :showDelete="false"></Spending>
   </div>
 </template>
 
@@ -31,8 +31,7 @@ const date = new Date();
 //get month in string
 const month = date.getMonth()+1;
 
-// console.log(store.spendings.filter(s => s.date.split('-')[1] == month))
-var data = store.getSpendingsByCategory(false, month);
+var data = store.getTransactionsByCategory(false, month);
 // console.log(data)
 var s = {
   typeChart: 'pie',

@@ -1,14 +1,14 @@
 <template>
-    <div v-if="spending" class="spending">
+    <div v-if="transaction" class="transaction">
         <div>
-            <img :src="require(`@/assets/icons/${store.categories[spending.category].icon}`)" alt="icon" class="icon" :style="{backgroundColor:store.categories[spending.category].color}">
+            <img :src="require(`@/assets/icons/${store.categories[transaction.category].icon}`)" alt="icon" class="icon" :style="{backgroundColor:store.categories[transaction.category].color}">
             <div>
-                <p class="amout">{{spending.amount}}€</p>
-                <p class="name">{{spending.name}}</p>
+                <p class="amout">{{transaction.amount}}€</p>
+                <p class="name">{{transaction.name}}</p>
             </div>
         </div>
-        <p class="date">{{new Date(spending.date).toLocaleDateString('fr-FR', {year: 'numeric', month: 'numeric', day: 'numeric'})}}</p>
-        <img v-if="showDelete" class="delete" src="@/assets/svg/close-outline.svg" alt="delete" @click="store.deleteSpending(spending.id)">
+        <p class="date">{{new Date(transaction.date).toLocaleDateString('fr-FR', {year: 'numeric', month: 'numeric', day: 'numeric'})}}</p>
+        <img v-if="showDelete" class="delete" src="@/assets/svg/close-outline.svg" alt="delete" @click="store.deleteTransaction(transaction.id)">
     </div>
 </template>
 <script setup>
@@ -16,16 +16,16 @@ import { useStore } from '@/stores/store.js';
 
 const store = useStore();
 //props
-const props = defineProps(['spending','showDelete']);
+const props = defineProps(['transaction','showDelete']);
 
 //on created
 const onCreated = function() {
-    console.log("spending", spending)
+    console.log("transaction", transaction)
 }
 
 </script>
 <style lang="scss" scoped>
-    .spending {
+    .transaction {
         position:relative;
         display: flex;
         flex-direction: row;

@@ -31,7 +31,7 @@ function toggleChartName(name){
     updateDataChart(name);
 }
 function updateDataChart(name){
-    var data = store.getSpendingsByMonth(name);
+    var data = store.getTransactionsByMonth(name);
     console.log(data);
     s.value = {
         typeChart: 'bar',
