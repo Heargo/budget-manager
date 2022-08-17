@@ -8,7 +8,7 @@
 </template>
 <script setup>
 import { ref, watch, defineEmits } from 'vue';
-var icons = ["biere.png","boulon.png","calendrier.png","chien.png","citrouille.png","cloche.png","dentifrice.png"]
+var icons = ["avion.png","biere.png","boulon.png","budget.png","burger.png","calendrier.png","clap.png","cloche.png","dentifrice.png","dumbell.png","emplacement.png","la-fleche.png","les-ciseaux.png","maison.png","mortier.png","panier.png","saving.png","valise.png","vernis-a-ongle.png"]
 var openOption = ref(false);
 var selected = ref(icons[0]);
 const emit = defineEmits(['selected'])

@@ -2,20 +2,28 @@ import { defineStore } from 'pinia'
 
 
 const DEFAULT_CATEGORIES = {
+    logement:{
+        icon:"maison.png",
+        color:"#f8cb87"
+    },
+    food:{
+        icon:"panier.png",
+        color:"#7fbdae"
+    },
+    transport:{
+        icon:"valise.png",
+        color:"#c58ade"
+    },
     party:{
         icon:"biere.png",
-        color:"#ff8a8a"
-    },
-    logement:{
-        icon:"calendrier.png",
-        color:"#8aff8a"
+        color:"#ed7179"
     },
     savings:{
-        icon:"boulon.png",
-        color:"green"
+        icon:"saving.png",
+        color:"#9ac666"
     },
     "monthly budget":{
-        icon:"boulon.png",
+        icon:"budget.png",
         color:"#e5e5e5"
     }
 };
