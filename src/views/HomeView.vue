@@ -14,20 +14,20 @@
       width="80vw"
       >
     </Chart>
-    <Spending v-for="transaction in store.getMonthTransactions(month)" :key="transaction.name" :transaction="transaction" :showDelete="false"></Spending>
+    <Transaction v-for="transaction in store.getMonthTransactions(month)" :key="transaction.name" :transaction="transaction" :showDelete="false"></Transaction>
   </div>
 </template>
 
 <script setup>
 import Chart from '@/components/Chart.vue'
-import Spending from '@/components/Spending.vue'
+import Transaction from '@/components/Transaction.vue'
 import { useStore } from '@/stores/store.js';
 
 const store = useStore();
 //new date
 const date = new Date();
 //move to next month
-// date.setMonth(date.getMonth() + 1);
+// date.setMonth(date.getMonth() + 0);
 //get month in string
 const month = date.getMonth()+1;
 

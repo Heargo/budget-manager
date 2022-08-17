@@ -73,6 +73,10 @@ export const useStore = defineStore('main', {
         getMonthTransactions(month){
             return this.transactions.filter(s => s.date.split('-')[1] == month).slice().reverse()
         },
+        getTransactions()
+        {
+            return this.transactions.slice().reverse();
+        },
         previousRemaningMonthBudget(month){
             var previousMonth = month - 1;
             if(previousMonth === 0){
@@ -230,8 +234,12 @@ export const useStore = defineStore('main', {
             var transactionsByMonth = [0,0,0,0,0,0,0,0,0,0,0,0];
             for(var i=0;i<transactions.length;i++){
                 var date = transactions[i].date.split("-");
-                var month = parseInt(date[1]);                    
-                transactionsByMonth[MONTH_ORDER.indexOf(INT_TO_MONTH[month])] += transactions[i].amount;
+                var month = parseInt(date[1]);
+                //case monthly budget (remove the transaction to transfer the remaining budget to savings)
+                if(transactions[i].amount >0){
+                    console.log(transactions[i].name,transactions[i].amount);
+                    transactionsByMonth[MONTH_ORDER.indexOf(INT_TO_MONTH[month])] += transactions[i].amount;
+                }
             }
 
             //case category is savings

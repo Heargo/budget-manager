@@ -3,7 +3,7 @@
         <div class="menu">
             <div class="list" v-if="toggleMenu">
                 <router-link class="link" to="/settings" @click="toggleMenu=false"><img src="@/assets/svg/settings-outline.svg" alt=""></router-link>
-                <router-link class="link" to="/history" @click="toggleMenu=false"><img src="@/assets/svg/save-outline.svg" alt=""></router-link>
+                <router-link class="link" to="/history" @click="toggleMenu=false"><img src="@/assets/svg/hourglass-outline.svg" alt=""></router-link>
                 <router-link class="link" to="/categories" @click="toggleMenu=false"><img src="@/assets/svg/stats-chart-outline.svg" alt=""></router-link>
                 <router-link class="link" to="/" @click="toggleMenu=false"><img src="@/assets/svg/pie-chart-outline.svg" alt=""></router-link>
                 <router-link class="link add" to="/add" @click="toggleMenu=false">
