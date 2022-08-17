@@ -56,6 +56,7 @@ export const useStore = defineStore('main', {
             return hash;
         },
         addSpending(data){
+            console.log("addSpending",data);
             this.spendings.push(data);
             //add id to the spending (id is the hash of name and date)
             data.id = this.generateID(data.name + data.date);
@@ -67,14 +68,52 @@ export const useStore = defineStore('main', {
             //update local storage
             localStorage.setItem('spendings', JSON.stringify(this.spendings));
         },
+        getMonthSpendings(month){
+            return this.spendings.filter(s => s.date.split('-')[1] == month).slice().reverse()
+        },
+        previousRemaningMonthBudget(month){
+            var previousMonth = month - 1;
+            if(previousMonth === 0){
+                previousMonth = 12;
+            }
+            var previousMonthBudget = this.spendings.reduce((acc, spending) => {
+                if(spending.category === "monthly budget" && spending.date.split("-")[1] == previousMonth){
+                    return acc + parseFloat(spending.amount);
+                }else if(spending.category != "savings" && spending.date.split("-")[1] == previousMonth){
+                    return acc - parseFloat(spending.amount);
+                }
+                return acc;
+            },0);
+            return previousMonthBudget;
+
+        },
+        transferRemaningBudget(month){
+            console.log("attemp transferRemaningBudget");
+            var previousMonthBudget = this.previousRemaningMonthBudget(month);
+            console.log("previousMonthBudget", previousMonthBudget);
+            if(previousMonthBudget>0){
+                console.log("transferRemaningBudget",previousMonthBudget);
+                //set date to last day of previous month
+                var date = new Date();
+                date.setMonth(month-1); //set month as parameter
+                date.setDate(-1); //get previous month
+
+                this.addSpending({
+                    name:"Transfer remaining budget to savings",
+                    amount:-previousMonthBudget,
+                    category:"monthly budget",
+                    date:date.toLocaleDateString("en-CA")
+                });
+            }
+        },
         getSpendingsByCategory(showSavings,month){
+            
             //get all months categories
             var x = Object.keys(this.categories);
             //remove savings from x
             if(!showSavings){
                 x = x.filter(category => category != "savings");
             }
-
             //get all colors of categories
             var colors = x.map(key => this.categories[key].color);
             var values=[]
@@ -82,7 +121,7 @@ export const useStore = defineStore('main', {
                 //get total amount of spendings by category for the month
                 var total = this.spendings.reduce((acc, spending) => {
                     if(spending.category === x[i] && spending.date.split("-")[1] == month){
-                        return acc + spending.amount;
+                        return acc + parseFloat(spending.amount);
                     }
                     return acc;
                 }
@@ -90,14 +129,20 @@ export const useStore = defineStore('main', {
                 values.push(total);
             }
             //if no monthly budget for the month add one.
-            if(values[x.indexOf("monthly budget")]<=0 && this.getSavings()>0){
-                console.log("add monthly budget");
+            var monthlyBudget = this.spendings.filter(spending => spending.category === "monthly budget" && spending.date.split("-")[1] == month);
+            console.log("monthlyBudget for "+month,monthlyBudget);
+            if(monthlyBudget.length==0 && this.getSavings()>0){
+                console.log("no monthly budget for the month, adding one");
+                //transfert remaining budget from previous month to savings before 
+                this.transferRemaningBudget(month);
                 //calculate monthly budget for the remaining months (until june)
                 var monthlyBudget = this.getSavings()/(11-(month-8)%12);
+                var date = new Date();
+                date.setMonth(month-1); //for test purpose (-1 because month is 0-11)
                 this.addSpending({
                     name:"Default budget",
                     amount:monthlyBudget.toFixed(2),
-                    date:new Date().toLocaleDateString("en-CA"),
+                    date:date.toLocaleDateString("en-CA"),
                     category:"monthly budget",
                 });
                 values[x.indexOf("monthly budget")] = monthlyBudget.toFixed(2);
@@ -131,7 +176,7 @@ export const useStore = defineStore('main', {
             //get all value in spendings with category savings
             var savings = this.spendings.reduce((acc, spending) => {
                 if(spending.category === "savings"){
-                    return acc + spending.amount;
+                    return acc + parseFloat(spending.amount);
                 }
                 return acc;
             },0);
@@ -165,20 +210,13 @@ export const useStore = defineStore('main', {
             return savings;
         },
         getSpendingsUntil(month){
-            console.log(month)
-
             var savings = this.spendings.reduce((acc, spending) => {
                 if(spending.category != "savings" && MONTH_ORDER.indexOf(INT_TO_MONTH[parseInt(spending.date.split("-")[1])])<=MONTH_ORDER.indexOf(month)){
-                    console.log(spending.name,parseFloat(spending.amount))
-                    // console.log("spending month index" , MONTH_ORDER.indexOf(INT_TO_MONTH[parseInt(spending.date.split("-")[1])]))
-                    // console.log("month index" , MONTH_ORDER.indexOf(month))
                     return acc + parseFloat(spending.amount);
                 }
                 return acc;
             },0);
             return savings;
-
-            return spendings;
         },
         getSpendingsByMonth(category)
         {
@@ -197,7 +235,6 @@ export const useStore = defineStore('main', {
             //case category is savings
             if(category == "savings"){
                 MONTH_ORDER.forEach((month,index) => {
-                    // console.log("month: "+month,"savings until him: "+this.getSavingsUntil(month),"spendings until him: "+this.getSpendingsUntil(month));
                     spendingsByMonth[index] = this.getSavingsUntil(month) - this.getSpendingsUntil(month);
                 });
             }

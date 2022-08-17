@@ -29,7 +29,7 @@ var date = ref(null);
 const router = useRouter()
 
 const addSpending = function() {
-    if (amount.value<=0 || name.value=="" || category.value=="" || name.value==null || category.value==null) {
+    if (amount.value==0 || name.value=="" || category.value=="" || name.value==null || category.value==null) {
         alert("Please fill all fields");
         return;
     }
