@@ -63,6 +63,9 @@ export const useStore = defineStore('main', {
             }
             return hash;
         },
+        convertDateToTxt(date){
+            return date.toISOString();
+        },
         addTransaction(data){
             console.log("addTransactions",data);
             this.transactions.push(data);
@@ -79,11 +82,62 @@ export const useStore = defineStore('main', {
             localStorage.setItem('transactions', JSON.stringify(this.transactions));
         },
         getMonthTransactions(month){
-            return this.transactions.filter(s => s.date.split('-')[1] == month).slice().reverse()
+            var tr= this.transactions.filter(s => s.date.split('-')[1] == month);
+            //return transactions sorted by transaction date
+            var tr= this.transactions.sort((a,b)=>{
+                var aDate = new Date(a.date);
+                var bDate = new Date(b.date);
+                return aDate - bDate;
+            });
+            return tr.reverse();
         },
         getTransactions()
         {
-            return this.transactions.slice().reverse();
+            //return transactions sorted by transaction date
+            var tr= this.transactions.sort((a,b)=>{
+                var aDate = new Date(a.date);
+                var bDate = new Date(b.date);
+                return aDate - bDate;
+            });
+            return tr.reverse();
+        },
+        getCustomCategory(){
+            return JSON.parse(localStorage.getItem('categories')) || {};
+        },
+        isSaveCorrupted(save){
+            console.log("save",save);
+            //check if there is a key transaction in the save 
+            if(!save.transactions) return true;
+            //check if there is a key categories in the save
+            if(!save.categories) return true;
+            console.log("Base ok");
+            
+            //check transactions keys
+            for(let transaction of save.transactions){
+                if(!transaction.amount || !transaction.name || !transaction.category || !transaction.date || !transaction.id) return true;
+            }
+            console.log("Transactions ok");
+
+            //check categories keys
+            for(let category of Object.keys(save.categories)){
+                var cat = save.categories[category];
+                if(!cat.icon || !cat.color) return true;
+            }
+            console.log("Categories ok");
+
+            return false;
+        },
+        importSave(save){
+            if(this.isSaveCorrupted(save)){
+                alert("Save is corrupted");
+                return;
+            }
+            //update transactions
+            this.transactions = save.transactions;
+            localStorage.setItem('transactions', JSON.stringify(this.transactions));
+            //update categories
+            localStorage.setItem('categories', JSON.stringify(save.categories));
+            this.categories = initCategories();
         },
         previousRemaningMonthBudget(month){
             var previousMonth = month - 1;
@@ -116,7 +170,7 @@ export const useStore = defineStore('main', {
                     name:"Transfer remaining budget to savings",
                     amount:-previousMonthBudget,
                     category:"monthly budget",
-                    date:date.toLocaleDateString("en-CA")
+                    date:this.convertDateToTxt(date)
                 });
             }
         },
@@ -156,7 +210,7 @@ export const useStore = defineStore('main', {
                 this.addTransaction({
                     name:"Default budget",
                     amount:monthlyBudget.toFixed(2),
-                    date:date.toLocaleDateString("en-CA"),
+                    date:this.convertDateToTxt(date),
                     category:"monthly budget",
                 });
                 values[x.indexOf("monthly budget")] = monthlyBudget.toFixed(2);
@@ -204,7 +258,9 @@ export const useStore = defineStore('main', {
                 this.transactions = this.transactions.filter(transaction => transaction.category !== category);
                 //update local storage
                 localStorage.setItem('transactions', JSON.stringify(this.transactions));
-                localStorage.setItem('categories', JSON.stringify(this.categories));
+                var customCategories = JSON.parse(localStorage.getItem('categories')) || {};
+                delete customCategories[category];
+                localStorage.setItem('categories', JSON.stringify(customCategories));
             }
         },
         newCategory(name, color, icon){
@@ -212,7 +268,14 @@ export const useStore = defineStore('main', {
                 color:color,
                 icon:icon
             }
-            localStorage.setItem('categories', JSON.stringify(this.categories));
+            //get custom categories
+            var customCategories = JSON.parse(localStorage.getItem('categories')) || {};
+            //add new category to custom categories
+            customCategories[name] = {
+                color:color,
+                icon:icon
+            }
+            localStorage.setItem('categories', JSON.stringify(customCategories));
         },
         getSavingsUntil(month){
             var savings = this.transactions.reduce((acc, transaction) => {
@@ -245,8 +308,7 @@ export const useStore = defineStore('main', {
                 var month = parseInt(date[1]);
                 //case monthly budget (remove the transaction to transfer the remaining budget to savings)
                 if(transactions[i].amount >0){
-                    console.log(transactions[i].name,transactions[i].amount);
-                    transactionsByMonth[MONTH_ORDER.indexOf(INT_TO_MONTH[month])] += transactions[i].amount;
+                    transactionsByMonth[MONTH_ORDER.indexOf(INT_TO_MONTH[month])] += parseFloat(transactions[i].amount);
                 }
             }
 
