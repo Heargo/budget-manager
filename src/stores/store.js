@@ -87,19 +87,19 @@ export const useStore = defineStore('main', {
             var tr= this.transactions.sort((a,b)=>{
                 var aDate = new Date(a.date);
                 var bDate = new Date(b.date);
-                return aDate - bDate;
+                return bDate - aDate;
             });
-            return tr.reverse();
+            return tr;
         },
         getTransactions()
         {
-            //return transactions sorted by transaction date
+            // return transactions sorted by transaction date
             var tr= this.transactions.sort((a,b)=>{
                 var aDate = new Date(a.date);
                 var bDate = new Date(b.date);
-                return aDate - bDate;
+                return bDate - aDate;
             });
-            return tr.reverse();
+            return tr;
         },
         getCustomCategory(){
             return JSON.parse(localStorage.getItem('categories')) || {};
