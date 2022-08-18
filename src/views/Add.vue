@@ -7,7 +7,7 @@
             <!-- <label for="category">Category</label> -->
             <select id="category" ref="category">
                 <option selected value="" disabled>Category</option>    
-                <option v-for="(category,name) in store.categories" :value="name" :key="category">{{name}}</option>
+                <option v-for="(category,name) in store.categories" :value="name" :key="category" :style="{'background-color':category.color}">{{name}}</option>
             </select>
             <input type="date" id="date" v-model="date" placeholder="Date">
 
@@ -68,6 +68,9 @@ form{
     select{
         width: calc(80% + 1rem ); 
         font-size: 1.5rem;
+        option{
+            text-transform: capitalize;
+        }
     }
     button{
         width: 50%;

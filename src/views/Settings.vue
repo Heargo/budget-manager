@@ -18,7 +18,7 @@
         <div class="categoriesList">
             <div v-for="(c,name) in store.categories" :key="c" :style="{'background-color':c.color}">
                 <img :src="require(`@/assets/icons/${c.icon}`)" alt="">
-                <p :style="{'color':'white'}">{{name}}</p>
+                <p>{{name}}</p>
                 <img class="delete" src="@/assets/svg/close-outline.svg" alt="delete" @click="store.deleteCategory(name)">
             </div>
         </div>
@@ -195,7 +195,7 @@ function importingSave(){
                 font-size: 1.3rem;
                 text-transform: capitalize;
                 font-weight:500;
-                mix-blend-mode:difference;
+                // mix-blend-mode:difference;
             }
             .delete{
                 position: absolute;
