@@ -34,7 +34,7 @@ const addTransaction = function() {
         return;
     }
     if(date.value=="" || date.value==null){
-        date.value = new Date().toLocaleDateString("en-CA");
+        date.value = store.convertDateToTxt(new Date());
     }
     var data = {amount:amount.value, name:name.value, category:category.value.value,date:date.value}
     store.addTransaction(data);

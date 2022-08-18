@@ -19,7 +19,7 @@ watch(selected, (currentValue, _oldValue) => {
 });
 
 </script>
-<style lang="scss">
+<style lang="scss" scoped>
     .selector{
         position:relative;
         width: 100%;
@@ -29,6 +29,8 @@ watch(selected, (currentValue, _oldValue) => {
         margin:0.2rem 0;
         border:solid 1px $txt;
         img{
+            width:2.5rem;
+            margin:.25rem;
             cursor: pointer;
         }
     }
@@ -39,8 +41,9 @@ watch(selected, (currentValue, _oldValue) => {
         align-items: center;
         flex-wrap: wrap;
         background-color: $bg2;
-        width: 10.2rem;
-        left:100%;
+        width: 13.6rem;
+        left:0;
+        top:0;
         z-index:2;
         border-radius: 10px;
         padding: 0.2rem;;

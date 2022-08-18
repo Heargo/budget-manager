@@ -2,7 +2,13 @@
     <div>
         <h1>Settings</h1>
         <form>
-            <div>
+            <div class="inline center">
+
+                <button @click="exportSave">Export save</button>
+                <label for="fileSelector">Import save</label>
+                <input id="fileSelector" type="file" v-on:change="importingSave" ref="fileSelector" hidden>
+            </div>
+            <div class="inline">
                 <input type="color" class="categoryColor" v-model="categoryColor">
                 <IconSelector @selected="setIcon"></IconSelector>
                 <input type="text" placeholder="New category" v-model="categoryName">
@@ -25,6 +31,7 @@ import { useStore } from '@/stores/store.js';
 import IconSelector from '@/components/IconSelector.vue';
 
 const store = useStore();
+const fileSelector = ref(null);
 
 var budget = ref(store.savings);
 var categoryName = ref(null);
@@ -51,9 +58,46 @@ function addCategory(){
     categoryIcon = "biere.png";
 }
 
+function exportSave(){
+    var save = {
+        transactions: store.transactions,
+        categories: store.getCustomCategory()
+    }
+
+     var numberOfCategories = Object.keys(save.categories).length;
+    var numberOfTransactions = Object.keys(save.transactions).length;
+    if(!confirm("Exporte the save with "+numberOfCategories+" custom categories and "+numberOfTransactions+" transactions?")){ return };
+
+    var blob = new Blob([JSON.stringify(save)], {type: "application/json"});
+    var url = URL.createObjectURL(blob);
+    var a = document.createElement("a");
+    a.href = url;
+    a.download = "save.json";
+    a.click();
+}
+
+function importingSave(){
+    //get file from input
+    var file = fileSelector.value.files[0];
+    console.log("file",file)
+    var reader = new FileReader();
+    reader.onload = function(e){
+        var data = JSON.parse(e.target.result);
+        if(store.isSaveCorrupted(data)){
+            alert("Save is corrupted");
+            return;
+        }
+        var numberOfCategories = Object.keys(data.categories).length;
+        var numberOfTransactions = Object.keys(data.transactions).length;
+        if(!confirm("Importing will overwrite your current save. Continue?\n there is "+numberOfCategories+" custom categories and "+numberOfTransactions+" transactions in the save")){ return };
+        store.importSave(data);
+    }
+    reader.readAsText(file);
+}
+
 
 </script>
-<style lang="scss">
+<style lang="scss" scoped>
     h1{
         text-align: center;
     }
@@ -75,11 +119,8 @@ function addCategory(){
                font-size: 2rem;
             }
         }
-        button{
-            width: 50%;
-            max-width:150px;
-            height: 2rem;
-            padding: 0.1rem 0.5rem;
+        button,label{
+            padding: 0.3rem 0.5rem;
             margin: 0.2rem 0;
             border-radius: 15px;
             outline:none;
@@ -89,12 +130,19 @@ function addCategory(){
             font-size: 1.2rem;
             cursor: pointer;
         }
-        div{
+        .inline{
             width: 90%;
             max-width:400px;
             display: flex;
             flex-direction: row;
             justify-content: space-between;
+            &.center{
+                justify-content: center;
+                margin-bottom: 0.5rem;
+                button,label{
+                    margin:0 1rem;
+                }
+            }
             input{
                 max-width: calc(90% - 100px);
             }
