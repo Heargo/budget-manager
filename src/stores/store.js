@@ -86,7 +86,7 @@ export const useStore = defineStore('main', {
         getMonthTransactions(month){
             var tr= this.transactions.filter(s => s.date.split('-')[1] == month);
             //return transactions sorted by transaction date
-            var tr= this.transactions.sort((a,b)=>{
+            var tr= tr.sort((a,b)=>{
                 var aDate = new Date(a.date);
                 var bDate = new Date(b.date);
                 return bDate - aDate;
