@@ -1,8 +1,9 @@
 <template>
   <div class="home">
     <h1>{{date.toLocaleString('en', { month: 'long' })}}'s spendings</h1>
-    <h3 v-if="data.remaning<0">overdrawn {{data.remaning}}€</h3>
-    <h3 v-else class="positive">remaining {{data.remaning}}€</h3>
+    <h3 v-if="data.remaining<0">overdrawn {{data.remaining}}€</h3>
+    <h3 v-else class="positive">remaining {{data.remaining}}€</h3>
+    <h4>{{data.spent}}€ spent</h4>
     <Chart
       :typeChart="s.typeChart"
       :title="s.title"
@@ -62,6 +63,12 @@ h3{
   &.positive{
     color:$green;
   }
+}
+h4{
+  color:$txt;
+  margin:0;
+  font-size: 1rem;
+  text-transform: uppercase;
 }
 
 .addBtn{

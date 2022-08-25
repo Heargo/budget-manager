@@ -28,7 +28,7 @@ const DEFAULT_CATEGORIES = {
     }
 };
 const MONTH_ORDER= ["Aug","Sep","Oct","Nov","Dec","Jan","Feb","Mar","Apr","May","Jun","Jul"];
-// var MONTH_TO_INT = {"Jan":1,"Feb":2,"Mar":3,"Apr":4,"May":5,"Jun":6,"Jul":7,"Aug":8,"Sep":9,"Oct":10,"Nov":11,"Dec":12};
+var MONTH_TO_INT = {"Jan":1,"Feb":2,"Mar":3,"Apr":4,"May":5,"Jun":6,"Jul":7,"Aug":8,"Sep":9,"Oct":10,"Nov":11,"Dec":12};
 var INT_TO_MONTH = {1:"Jan",2:"Feb",3:"Mar",4:"Apr",5:"May",6:"Jun",7:"Jul",8:"Aug",9:"Sep",10:"Oct",11:"Nov",12:"Dec"};
 
 function initCategories(){
@@ -49,6 +49,8 @@ export const useStore = defineStore('main', {
             // savings:JSON.parse(localStorage.getItem('savings')) || null,
             transactions:JSON.parse(localStorage.getItem('transactions')) || [],
             categories:initCategories(),
+            MONTH_ORDER:MONTH_ORDER,
+            MONTH_TO_INT:MONTH_TO_INT,
 
         }
       },
@@ -91,7 +93,7 @@ export const useStore = defineStore('main', {
             });
             return tr;
         },
-        getTransactions()
+        getTransactions(month=null)
         {
             // return transactions sorted by transaction date
             var tr= this.transactions.sort((a,b)=>{
@@ -99,6 +101,10 @@ export const useStore = defineStore('main', {
                 var bDate = new Date(b.date);
                 return bDate - aDate;
             });
+            //if month is not null, return transactions for the given month
+            if(month){
+                tr = tr.filter(s => s.date.split('-')[1] == month);
+            }
             return tr;
         },
         getCustomCategory(){
@@ -185,17 +191,17 @@ export const useStore = defineStore('main', {
             //get all colors of categories
             var colors = x.map(key => this.categories[key].color);
             var values=[]
-            for(var i=0;i<x.length;i++){
-                //get total amount of transactions by category for the month
-                var total = this.transactions.reduce((acc, transaction) => {
-                    if(transaction.category === x[i] && transaction.date.split("-")[1] == month){
-                        return acc + parseFloat(transaction.amount);
-                    }
-                    return acc;
-                }
-                ,0);
-                values.push(total);
+            for(var i = 0; i < x.length; i++){
+                values.push(0)
             }
+            //foreach transaction add value to corresponding category
+            this.transactions.forEach(tr => {
+                //get index of category
+                var index = x.indexOf(tr.category);
+                if(index>=0 && tr.date.split("-")[1] == month){
+                    values[parseInt(index)] += parseFloat(tr.amount);
+                }
+            });
             //if no monthly budget for the month add one.
             var monthlyBudget = this.transactions.filter(transaction => transaction.category === "monthly budget" && transaction.date.split("-")[1] == month);
             console.log("monthlyBudget for "+month,monthlyBudget);
@@ -216,27 +222,28 @@ export const useStore = defineStore('main', {
                 values[x.indexOf("monthly budget")] = monthlyBudget.toFixed(2);
             }
 
-            var spend=0;
+            var spent=0;
             for (var i = 0; i < x.length; i++) {
                 if(i!=x.indexOf("monthly budget")){
-                    spend+=values[i];
+                    spent+=values[i];
                 }
             }
-            values[x.indexOf("monthly budget")] -= spend;
-            var remaning=0;
+            values[x.indexOf("monthly budget")] -= spent;
+            var remaining=0;
             if(values[x.indexOf("monthly budget")]<0){
                 colors[x.indexOf("monthly budget")]="#e63946";
-                remaning=values[x.indexOf("monthly budget")];
+                remaining=values[x.indexOf("monthly budget")];
                 values[x.indexOf("monthly budget")] = 0;
             }else{
-                remaning=values[x.indexOf("monthly budget")];
+                remaining=values[x.indexOf("monthly budget")];
             }
 
             return{
                 x:x,
                 y:values,
                 colors:colors,
-                remaning:remaning.toFixed(2)
+                spent:spent,
+                remaining:remaining.toFixed(2)
             }
 
         },
@@ -288,12 +295,17 @@ export const useStore = defineStore('main', {
         },
         getTransactionsUntil(month){
             var savings = this.transactions.reduce((acc, transaction) => {
-                if(transaction.category != "savings" && MONTH_ORDER.indexOf(INT_TO_MONTH[parseInt(transaction.date.split("-")[1])])<=MONTH_ORDER.indexOf(month)){
+                if(transaction.category != "savings" && transaction.category != "monthly budget" && MONTH_ORDER.indexOf(INT_TO_MONTH[parseInt(transaction.date.split("-")[1])])<=MONTH_ORDER.indexOf(month)){
                     return acc + parseFloat(transaction.amount);
                 }
                 return acc;
             },0);
             return savings;
+        },
+        getCurrentSavings(){
+            var date = new Date();
+            var month = INT_TO_MONTH[date.getMonth()+1];
+            return this.getSavingsUntil(month) - this.getTransactionsUntil(month);
         },
         getTransactionsByMonth(category)
         {
@@ -321,6 +333,14 @@ export const useStore = defineStore('main', {
 
             //array of months
             return {x:MONTH_ORDER,y:Object.values(transactionsByMonth),colors:this.categories[category].color};
+        },
+        getMonthsUntilNow(){
+            var date = new Date();
+            var month = date.getMonth()+1;
+            var indx = MONTH_ORDER.indexOf(INT_TO_MONTH[month]);
+            //get all months until indx
+            var months = MONTH_ORDER.slice(0,indx+1);
+            return months;
         }
 
 
