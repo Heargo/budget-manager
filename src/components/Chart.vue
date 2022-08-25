@@ -108,7 +108,7 @@ export default {
         }
     }
     .myStat{
-        margin:2rem 0;
+        margin:1rem 0;
         // border:solid 1px red;
     }
 </style>
