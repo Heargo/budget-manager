@@ -205,12 +205,12 @@ export const useStore = defineStore('main', {
             //if no monthly budget for the month add one.
             var monthlyBudget = this.transactions.filter(transaction => transaction.category === "monthly budget" && transaction.date.split("-")[1] == month);
             console.log("monthlyBudget for "+month,monthlyBudget);
-            if(monthlyBudget.length==0 && this.getSavings()>0){
+            if(monthlyBudget.length==0 && this.getCurrentSavings()>0){
                 console.log("no monthly budget for the month, adding one");
                 //transfert remaining budget from previous month to savings before 
                 this.transferRemaningBudget(month);
                 //calculate monthly budget for the remaining months (until june)
-                var monthlyBudget = this.getSavings()/(11-(month-8)%12);
+                var monthlyBudget = this.getCurrentSavings()/(11-(month-8)%12);
                 var date = new Date();
                 date.setMonth(month-1); //for test purpose (-1 because month is 0-11)
                 this.addTransaction({
