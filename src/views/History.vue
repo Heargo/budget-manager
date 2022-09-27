@@ -90,8 +90,8 @@ function setupChartValues(){
     });
 
     //get remaining and spent
-    remaining.value = parseFloat(store.getCurrentSavings());
-    spent.value = values.value.reduce((a, b) => a + b, 0);
+    remaining.value = parseFloat(store.getCurrentSavings()).toFixed(2);
+    spent.value = values.value.reduce((a, b) => a + b, 0).toFixed(2);
 
     updateChart.value++;
 }

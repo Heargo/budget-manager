@@ -27,7 +27,7 @@ const DEFAULT_CATEGORIES = {
         color:"#e5e5e5"
     }
 };
-const MONTH_ORDER= ["Aug","Sep","Oct","Nov","Dec","Jan","Feb","Mar","Apr","May","Jun","Jul"];
+const MONTH_ORDER= ["Aug","Sep","Oct","Nov","Dec","Jan","Feb","Mar","Apr","May","Jun"]; //no jul bc don't need in graphs
 var MONTH_TO_INT = {"Jan":1,"Feb":2,"Mar":3,"Apr":4,"May":5,"Jun":6,"Jul":7,"Aug":8,"Sep":9,"Oct":10,"Nov":11,"Dec":12};
 var INT_TO_MONTH = {1:"Jan",2:"Feb",3:"Mar",4:"Apr",5:"May",6:"Jun",7:"Jul",8:"Aug",9:"Sep",10:"Oct",11:"Nov",12:"Dec"};
 
@@ -69,7 +69,6 @@ export const useStore = defineStore('main', {
             return date.toISOString();
         },
         addTransaction(data){
-            console.log("addTransactions",data);
             this.transactions.push(data);
             //add id to the transaction (id is the hash of name and date)
             data.id = this.generateID(data.name + data.date);
@@ -79,7 +78,6 @@ export const useStore = defineStore('main', {
         deleteTransaction(id){
             if(!confirm("Are you sure you want to delete this transaction?")) return;
             
-            console.log("delete transaction",id);
             this.transactions = this.transactions.filter(transaction => transaction.id !== id);
             localStorage.setItem('transactions', JSON.stringify(this.transactions));
         },
@@ -162,11 +160,11 @@ export const useStore = defineStore('main', {
 
         },
         transferRemaningBudget(month){
-            console.log("attemp transferRemaningBudget");
+            // console.log("attemp transferRemaningBudget");
             var previousMonthBudget = this.previousRemaningMonthBudget(month);
-            console.log("previousMonthBudget", previousMonthBudget);
+            // console.log("previousMonthBudget", previousMonthBudget);
             if(previousMonthBudget>0){
-                console.log("transferRemaningBudget",previousMonthBudget);
+                // console.log("transferRemaningBudget",previousMonthBudget);
                 //set date to last day of previous month
                 var date = new Date();
                 date.setMonth(month-1); //set month as parameter
@@ -204,16 +202,16 @@ export const useStore = defineStore('main', {
             });
             //if no monthly budget for the month add one.
             var monthlyBudget = this.transactions.filter(transaction => transaction.category === "monthly budget" && transaction.date.split("-")[1] == month);
-            console.log("monthlyBudget for "+month,monthlyBudget);
+            // console.log("monthlyBudget for "+month,monthlyBudget);
             if(monthlyBudget.length==0 && this.getCurrentSavings()>0){
-                console.log("no monthly budget for the month, adding one");
+                // console.log("no monthly budget for the month, adding one");
                 //transfert remaining budget from previous month to savings before 
                 this.transferRemaningBudget(month);
                 //calculate monthly budget for the remaining months (until june)
                 var monthlyBudget = this.getCurrentSavings()/(11-(month-8)%12);
                 var date = new Date();
                 date.setMonth(month-1); //for test purpose (-1 because month is 0-11)
-                this.addTransaction({
+                this.addTransaction({ 
                     name:"Default budget",
                     amount:monthlyBudget.toFixed(2),
                     date:this.convertDateToTxt(date),
@@ -242,7 +240,7 @@ export const useStore = defineStore('main', {
                 x:x,
                 y:values,
                 colors:colors,
-                spent:spent,
+                spent:spent.toFixed(2),
                 remaining:remaining.toFixed(2)
             }
 
@@ -328,6 +326,20 @@ export const useStore = defineStore('main', {
             if(category == "savings"){
                 MONTH_ORDER.forEach((month,index) => {
                     transactionsByMonth[index] = this.getSavingsUntil(month) - this.getTransactionsUntil(month);
+                });
+            }
+            //case category is monthly budget
+            if(category == "monthly budget"){
+                //get next & current month
+                var date = new Date();
+                var currentMonth = INT_TO_MONTH[date.getMonth()+1];
+                var nextMonth = date.getMonth()+2;
+                var calcBudg =this.getCurrentSavings()/(11-(nextMonth-8)%12);
+                MONTH_ORDER.forEach((month,index) => {
+                    //if current month is before the month, get the monthly budget
+                    if(MONTH_ORDER.indexOf(currentMonth)<MONTH_ORDER.indexOf(month)){
+                        transactionsByMonth[index] = calcBudg;
+                    }
                 });
             }
 
