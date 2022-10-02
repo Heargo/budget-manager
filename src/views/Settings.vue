@@ -8,6 +8,10 @@
                 <label for="fileSelector">Import save</label>
                 <input id="fileSelector" type="file" v-on:change="importingSave" ref="fileSelector" hidden>
             </div>
+            <div class="inline center">
+                <p>Maximum monthly budget:</p>
+                <input type="number" name="maxBudget" id="" v-model="budget">
+            </div>
             <div class="inline">
                 <input type="color" class="categoryColor" v-model="categoryColor">
                 <IconSelector @selected="setIcon"></IconSelector>
@@ -33,15 +37,15 @@ import IconSelector from '@/components/IconSelector.vue';
 const store = useStore();
 const fileSelector = ref(null);
 
-var budget = ref(store.savings);
+var budget = ref(store.maximumMonthlyBudget);
 var categoryName = ref(null);
 var categoryColor = ref("#000000");
 var categoryIcon ="biere.png";
 
 watch(budget, (currentValue, _oldValue) => {
     //save to store
-    console.log("new budget: " + currentValue);
-    store.setSavings(currentValue);
+    console.log("new max budget: " + currentValue);
+    localStorage.setItem("maximumMonthlyBudget", currentValue);
 });
 
 function setIcon(icon){

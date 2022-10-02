@@ -48,6 +48,7 @@ export const useStore = defineStore('main', {
             count:0,
             // savings:JSON.parse(localStorage.getItem('savings')) || null,
             transactions:JSON.parse(localStorage.getItem('transactions')) || [],
+            maximumMonthlyBudget:JSON.parse(localStorage.getItem('maximumMonthlyBudget')) || 750,
             categories:initCategories(),
             MONTH_ORDER:MONTH_ORDER,
             MONTH_TO_INT:MONTH_TO_INT,
@@ -208,7 +209,7 @@ export const useStore = defineStore('main', {
                 //transfert remaining budget from previous month to savings before 
                 this.transferRemaningBudget(month);
                 //calculate monthly budget for the remaining months (until june)
-                var monthlyBudget = this.getCurrentSavings()/(11-(month-8)%12);
+                var monthlyBudget = this.calculateMonthlyBudget(month);
                 var date = new Date();
                 date.setMonth(month-1); //for test purpose (-1 because month is 0-11)
                 this.addTransaction({ 
@@ -244,6 +245,12 @@ export const useStore = defineStore('main', {
                 remaining:remaining.toFixed(2)
             }
 
+        },
+
+        calculateMonthlyBudget(month){
+            //calculate monthly budget for the remaining months (until june)
+            var monthlyBudget = this.getCurrentSavings()/(11-(month-8)%12);
+            return Math.min(monthlyBudget, this.maximumMonthlyBudget);
         },
         getSavings(){
             //get all value in transactions with category savings
@@ -334,7 +341,7 @@ export const useStore = defineStore('main', {
                 var date = new Date();
                 var currentMonth = INT_TO_MONTH[date.getMonth()+1];
                 var nextMonth = date.getMonth()+2;
-                var calcBudg =this.getCurrentSavings()/(11-(nextMonth-8)%12);
+                var calcBudg =this.calculateMonthlyBudget(nextMonth);
                 MONTH_ORDER.forEach((month,index) => {
                     //if current month is before the month, get the monthly budget
                     if(MONTH_ORDER.indexOf(currentMonth)<MONTH_ORDER.indexOf(month)){
