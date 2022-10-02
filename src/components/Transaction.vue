@@ -3,7 +3,7 @@
         <div>
             <img :src="require(`@/assets/icons/${store.categories[transaction.category].icon}`)" alt="icon" class="icon" :style="{backgroundColor:store.categories[transaction.category].color}">
             <div>
-                <p class="amout">{{transaction.amount}}€</p>
+                <p class="amout">{{parseInt(transaction.amount).toFixed(2)}}€</p>
                 <p class="name">{{transaction.name}}</p>
             </div>
         </div>
