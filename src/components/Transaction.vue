@@ -26,12 +26,9 @@ const onCreated = function() {
 
 function getIcon(){
     if (!store.hasCategory(props.transaction.category)){
-        console.log("return for undefined")
-
         return "boulon.png";
     }
     else{
-        console.log("icon")
         return store.categories[props.transaction.category].icon;
     }
 }

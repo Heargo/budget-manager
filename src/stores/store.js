@@ -343,7 +343,8 @@ export const useStore = defineStore('main', {
         getCurrentSavings(){
             var date = new Date();
             var month = INT_TO_MONTH[date.getMonth()+1];
-            return this.getSavingsUntil(month) - this.getTransactionsUntil(month);
+            let year = date.getFullYear();
+            return this.getSavingsUntil(month,year) - this.getTransactionsUntil(month,year);
         },
         getTransactionsByMonth(category,year=this.year)
         {
