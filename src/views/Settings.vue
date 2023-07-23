@@ -2,15 +2,19 @@
     <div>
         <h1>Settings</h1>
         <form>
-            <div class="inline center">
+            <div class="inline">
 
                 <button @click="exportSave">Export save</button>
                 <label for="fileSelector">Import save</label>
                 <input id="fileSelector" type="file" v-on:change="importingSave" ref="fileSelector" hidden>
             </div>
-            <div class="inline center">
+            <div class="inline">
                 <p>Maximum monthly budget:</p>
                 <input type="number" name="maxBudget" id="" v-model="budget">
+            </div>
+            <div class="inline">
+                <p>Year:</p>
+                <input type="number" name="maxBudget" id="" v-model="year">
             </div>
             <div class="inline">
                 <input type="color" class="categoryColor" v-model="categoryColor">
@@ -38,6 +42,7 @@ const store = useStore();
 const fileSelector = ref(null);
 
 var budget = ref(store.maximumMonthlyBudget);
+var year = ref(store.year);
 var categoryName = ref(null);
 var categoryColor = ref("#000000");
 var categoryIcon ="biere.png";

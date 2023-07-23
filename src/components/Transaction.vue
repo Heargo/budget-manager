@@ -1,14 +1,14 @@
 <template>
     <div v-if="transaction" class="transaction">
         <div>
-            <img :src="require(`@/assets/icons/${store.categories[transaction.category].icon}`)" alt="icon" class="icon" :style="{backgroundColor:store.categories[transaction.category].color}">
+            <img :src="require(`@/assets/icons/${getIcon()}`)" alt="icon" class="icon" :style="{backgroundColor:store.categories[transaction.category].color}">
             <div>
                 <p class="amout">{{parseFloat(transaction.amount).toFixed(2)}}€</p>
                 <p class="name">{{transaction.name}}</p>
             </div>
         </div>
         <p class="date">{{new Date(transaction.date).toLocaleDateString('fr-FR', {year: 'numeric', month: 'numeric', day: 'numeric'})}}</p>
-        <img v-if="showDelete" class="delete" src="@/assets/svg/close-outline.svg" alt="delete" @click="store.deleteTransaction(transaction.id)">
+        <img v-if="showDelete" class="delete" src="@/assets/svg/close-outline.svg" alt="delete" @click="deleteTransaction">
     </div>
 </template>
 <script setup>
@@ -17,10 +17,29 @@ import { useStore } from '@/stores/store.js';
 const store = useStore();
 //props
 const props = defineProps(['transaction','showDelete']);
+const emit = defineEmits(['deleted'])
 
 //on created
 const onCreated = function() {
     console.log("transaction", transaction)
+}
+
+function getIcon(){
+    if (!store.hasCategory(props.transaction.category)){
+        console.log("return for undefined")
+
+        return "boulon.png";
+    }
+    else{
+        console.log("icon")
+        return store.categories[props.transaction.category].icon;
+    }
+}
+
+function deleteTransaction(){
+    store.deleteTransaction(props.transaction.id);
+    //emit event to parent with transaction as parameter
+    emit('deleted', props.transaction);
 }
 
 </script>

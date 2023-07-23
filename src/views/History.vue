@@ -1,10 +1,10 @@
 <template>
-    <div>
+    <div class="flex-col">
         <h1>History</h1>
         
-        <h3 v-if="remaining<0 && month==0">overdrawn {{remaining}}€</h3>
-        <h3 v-else-if="remaining>=0 && month==0" class="positive">remaining {{remaining}}€</h3>
-        <Chart v-if="x!=null"
+        <h3 v-if="remaining<0 && month==='all'">overdrawn {{remaining}}€</h3>
+        <h3 v-else-if="remaining>=0 && month==='all'" class="positive">remaining {{remaining}}€</h3>
+        <Chart v-if="transactions.length>0"
             :key="updateChart"
             typeChart="pie"
             :title="months[month]"
@@ -13,14 +13,19 @@
             :customOptions="null"
             :customColors="colors"
         ></Chart>
+        <img v-if="transactions.length==0"  class="nothing-found" src="@/assets/svg/undraw_treasure_of-9-i.svg" alt="">
+        <p v-if="transactions.length==0"> Nothing happend during this period</p>
         <h4>{{spent}}€ spent</h4>
         <div class="selectMonth">
-            <img src="@/assets/svg/chevron-back-circle-outline.svg" alt="previous" @click="previousMonth()">
-            <h3>{{months[month]}}</h3>
-            <img src="@/assets/svg/chevron-forward-circle-outline.svg" alt="next" @click="nextMonth()">
+            <select name="month" id="" @change="updateTransactions" v-model="month">
+                <option v-for="(month,index) in months" :key="month" :value="month" @click="getTransactions">{{month}}</option>
+            </select>
+            <select name="years" @change="updateTransactions" v-model="year">
+                <option v-for="year in years" :key="year" :value="year" @click="getTransactions">{{year}}</option>
+            </select>
         </div>
-        <div class="container">
-            <Transaction v-for="transaction in transactions" :key="transaction.name" :transaction="transaction" :showDelete="true"></Transaction>
+        <div class="container" v-if="transactions.length>0" >
+            <Transaction @deleted="removeTransaction" v-for="transaction in transactions" :key="transaction.name" :transaction="transaction" :showDelete="true"></Transaction>
         </div>
     </div>
 </template>
@@ -28,42 +33,39 @@
 import Transaction from '@/components/Transaction.vue';
 import { useStore } from '@/stores/store.js';
 import Chart from '@/components/Chart.vue';
-import { ref } from 'vue'
+import { ref, getCurrentInstance } from 'vue'
+const instance = getCurrentInstance();
 
 const store = useStore();
-const months =["all"].concat(store.getMonthsUntilNow());
-var month = ref(0);
+const months =["all"].concat(store.MONTH_ORDER);
+const years = store.getYearsFromTransactions();
+var month = ref("all");
 var transactions = ref(null);
-var updateChart = ref(0);
+var updateChart = ref(0);   
 var x = ref(null);
 var values = ref([]);
 var colors = ref(null);
 var remaining = ref(0);
 var spent = ref(0);
+var year = ref(store.year);
+
 getTransactions();
 
 function getTransactions(){
-    console.log("getTransactions");
-    if (month.value == 0){ // if all is selected
-        transactions.value= store.getTransactions();
+    if (month.value === "all"){ // if all is selected
+        transactions.value= store.getTransactions(null,year.value);
     }
     else{
-        transactions.value= store.getTransactions(store.MONTH_TO_INT[months[month.value]]);
+        transactions.value= store.getTransactions(store.MONTH_TO_INT[month.value], year.value);
     }
     setupChartValues();
 }
 
-function previousMonth(){
-    //get previous month
-    month.value = (month.value - 1 + months.length) % months.length;
-    getTransactions();
-}
-function nextMonth(){
-    //get next month
-    month.value = (month.value + 1) % months.length;
-    getTransactions();
-}
+function updateTransactions(){
+    getTransactions()
+    instance?.proxy?.$forceUpdate();
 
+}
 
 function setupChartValues(){
     //reset
@@ -94,6 +96,10 @@ function setupChartValues(){
     spent.value = values.value.reduce((a, b) => a + b, 0).toFixed(2);
 
     updateChart.value++;
+}
+
+function removeTransaction(transaction){
+    transactions.value = transactions.value.filter(tr => tr.id !== transaction.id);
 }
 
 
@@ -145,5 +151,16 @@ function setupChartValues(){
         margin:0;
         font-size: 1rem;
         text-transform: uppercase;
+    }
+    .nothing-found{
+        width: 100%;
+        max-width: 300px;
+        margin: 1rem;
+    }
+    .flex-col{
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
     }
 </style>

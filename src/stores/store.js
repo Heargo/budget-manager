@@ -2,7 +2,7 @@ import { defineStore } from 'pinia'
 
 
 const DEFAULT_CATEGORIES = {
-    logement:{
+    home:{
         icon:"maison.png",
         color:"#f8cb87"
     },
@@ -27,7 +27,7 @@ const DEFAULT_CATEGORIES = {
         color:"#e5e5e5"
     }
 };
-const MONTH_ORDER= ["Aug","Sep","Oct","Nov","Dec","Jan","Feb","Mar","Apr","May","Jun"]; //no jul bc don't need in graphs
+const MONTH_ORDER= ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
 var MONTH_TO_INT = {"Jan":1,"Feb":2,"Mar":3,"Apr":4,"May":5,"Jun":6,"Jul":7,"Aug":8,"Sep":9,"Oct":10,"Nov":11,"Dec":12};
 var INT_TO_MONTH = {1:"Jan",2:"Feb",3:"Mar",4:"Apr",5:"May",6:"Jun",7:"Jul",8:"Aug",9:"Sep",10:"Oct",11:"Nov",12:"Dec"};
 
@@ -52,6 +52,7 @@ export const useStore = defineStore('main', {
             categories:initCategories(),
             MONTH_ORDER:MONTH_ORDER,
             MONTH_TO_INT:MONTH_TO_INT,
+            year:2023,
 
         }
       },
@@ -83,7 +84,7 @@ export const useStore = defineStore('main', {
             localStorage.setItem('transactions', JSON.stringify(this.transactions));
         },
         getMonthTransactions(month){
-            var tr= this.transactions.filter(s => s.date.split('-')[1] == month);
+            var tr= this.transactions.filter(s => s.date.split('-')[1] == month && s.date.split('-')[0] == this.year);
             //return transactions sorted by transaction date
             var tr= tr.sort((a,b)=>{
                 var aDate = new Date(a.date);
@@ -92,7 +93,7 @@ export const useStore = defineStore('main', {
             });
             return tr;
         },
-        getTransactions(month=null)
+        getTransactions(month=null,year=null)
         {
             // return transactions sorted by transaction date
             var tr= this.transactions.sort((a,b)=>{
@@ -100,10 +101,20 @@ export const useStore = defineStore('main', {
                 var bDate = new Date(b.date);
                 return bDate - aDate;
             });
+
+            //filter by year 
+            if(year){
+                tr = tr.filter(s => s.date.split('-')[0] == year);
+            }
+            else{
+                tr = tr.filter(s => s.date.split('-')[0] == this.year);
+            }
+
             //if month is not null, return transactions for the given month
             if(month){
                 tr = tr.filter(s => s.date.split('-')[1] == month);
             }
+            
             return tr;
         },
         getCustomCategory(){
@@ -146,13 +157,17 @@ export const useStore = defineStore('main', {
         },
         previousRemaningMonthBudget(month){
             var previousMonth = month - 1;
+            let previousYear = this.year;
             if(previousMonth === 0){
                 previousMonth = 12;
+                previousYear -= 1;
             }
-            var previousMonthBudget = this.transactions.reduce((acc, transaction) => {
-                if(transaction.category === "monthly budget" && transaction.date.split("-")[1] == previousMonth){
+            let previousMonthTransactions = this.getTransactions(previousMonth,previousYear);
+            
+            var previousMonthBudget = previousMonthTransactions.reduce((acc, transaction) => {
+                if(transaction.category === "monthly budget"){
                     return acc + parseFloat(transaction.amount);
-                }else if(transaction.category != "savings" && transaction.date.split("-")[1] == previousMonth){
+                }else if(transaction.category != "savings"){
                     return acc - parseFloat(transaction.amount);
                 }
                 return acc;
@@ -247,10 +262,8 @@ export const useStore = defineStore('main', {
 
         },
 
-        calculateMonthlyBudget(month){
-            //calculate monthly budget for the remaining months (until june)
-            var monthlyBudget = this.getCurrentSavings()/(11-(month-8)%12);
-            return Math.min(monthlyBudget, this.maximumMonthlyBudget);
+        calculateMonthlyBudget(){
+            return this.maximumMonthlyBudget;
         },
         getSavings(){
             //get all value in transactions with category savings
@@ -289,18 +302,38 @@ export const useStore = defineStore('main', {
             }
             localStorage.setItem('categories', JSON.stringify(customCategories));
         },
-        getSavingsUntil(month){
+        hasCategory(category){
+            return category in this.categories;
+        },
+        isDateBeforeMonthAndYear(date,month,year){
+            let monthint = MONTH_TO_INT[month];
+            var date = new Date(date);
+            if(date.getFullYear()<year){
+                return true;
+            }else if(date.getFullYear()===year){
+                if(date.getMonth()<=monthint){
+                    return true;
+                }
+            }
+            return false;
+        },
+
+        getSavingsUntil(month,year=this.year){
             var savings = this.transactions.reduce((acc, transaction) => {
-                if(transaction.category == "savings" && MONTH_ORDER.indexOf(INT_TO_MONTH[transaction.date.split("-")[1]])<=MONTH_ORDER.indexOf(month)){
+                if(transaction.category == "savings" && this.isDateBeforeMonthAndYear(transaction.date,month,year)){
+                    // console.log("date",transaction.date,"is before month-year",month,year,"adding",transaction.amount,"to savings")
                     return acc + parseFloat(transaction.amount);
+                }
+                else if(transaction.category == "savings" && !this.isDateBeforeMonthAndYear(transaction.date,month,year)){
+                    // console.log("date",transaction.date,"is after month-year",month,year,"not adding",transaction.amount,"to savings")
                 }
                 return acc;
             },0);
             return savings;
         },
-        getTransactionsUntil(month){
+        getTransactionsUntil(month,year=this.year){
             var savings = this.transactions.reduce((acc, transaction) => {
-                if(transaction.category != "savings" && transaction.category != "monthly budget" && MONTH_ORDER.indexOf(INT_TO_MONTH[parseInt(transaction.date.split("-")[1])])<=MONTH_ORDER.indexOf(month)){
+                if(transaction.category != "savings" && transaction.category!="monthly budget" && this.isDateBeforeMonthAndYear(transaction.date,month,year)){
                     return acc + parseFloat(transaction.amount);
                 }
                 return acc;
@@ -312,7 +345,7 @@ export const useStore = defineStore('main', {
             var month = INT_TO_MONTH[date.getMonth()+1];
             return this.getSavingsUntil(month) - this.getTransactionsUntil(month);
         },
-        getTransactionsByMonth(category)
+        getTransactionsByMonth(category,year=this.year)
         {
             if(category == "savings"){
                 var transactions = this.transactions.filter(transaction => transaction.category != category);
@@ -324,7 +357,7 @@ export const useStore = defineStore('main', {
                 var date = transactions[i].date.split("-");
                 var month = parseInt(date[1]);
                 //case monthly budget (remove the transaction to transfer the remaining budget to savings)
-                if(transactions[i].amount >0){
+                if(transactions[i].amount >0 && parseInt(transactions[i].date.split('-')[0]) === year){
                     transactionsByMonth[MONTH_ORDER.indexOf(INT_TO_MONTH[month])] += parseFloat(transactions[i].amount);
                 }
             }
@@ -332,7 +365,7 @@ export const useStore = defineStore('main', {
             //case category is savings
             if(category == "savings"){
                 MONTH_ORDER.forEach((month,index) => {
-                    transactionsByMonth[index] = this.getSavingsUntil(month) - this.getTransactionsUntil(month);
+                    transactionsByMonth[index] = this.getSavingsUntil(month,year) - this.getTransactionsUntil(month,year);
                 });
             }
             //case category is monthly budget
@@ -340,8 +373,7 @@ export const useStore = defineStore('main', {
                 //get next & current month
                 var date = new Date();
                 var currentMonth = INT_TO_MONTH[date.getMonth()+1];
-                var nextMonth = date.getMonth()+2;
-                var calcBudg =this.calculateMonthlyBudget(nextMonth);
+                var calcBudg =this.calculateMonthlyBudget();
                 MONTH_ORDER.forEach((month,index) => {
                     //if current month is before the month, get the monthly budget
                     if(MONTH_ORDER.indexOf(currentMonth)<MONTH_ORDER.indexOf(month)){
@@ -360,8 +392,19 @@ export const useStore = defineStore('main', {
             //get all months until indx
             var months = MONTH_ORDER.slice(0,indx+1);
             return months;
-        }
+        },
 
+        getYearsFromTransactions(){
+            var years = [];
+            for(var i=0;i<this.transactions.length;i++){
+                var date = this.transactions[i].date.split("-");
+                var year = parseInt(date[0]);
+                if(!years.includes(year)){
+                    years.push(year);
+                }
+            }
+            return years;
+        }
 
       },
 })

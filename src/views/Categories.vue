@@ -1,6 +1,9 @@
 <template>
     <div>
         <h1>Categories</h1>
+        <select name="years" @change="updateTransactions" v-model="year">
+                <option v-for="year in years" :key="year" :value="year" @click="getTransactions">{{year}}</option>
+        </select>
         <div v-for="(c,name) in store.categories" :key="c" class="containerCategory">
             <div class="toggle" :style="{'background-color':c.color}" @click="toggleChartName(name)">
                 <img :src="require(`@/assets/icons/${c.icon}`)" :alt="name">
@@ -25,14 +28,15 @@ import { ref } from 'vue';
 const store = useStore();
 var toggleChart = ref(null);
 var s = ref(null);
+const years = store.getYearsFromTransactions();
+var year = ref(store.year);
 
 function toggleChartName(name){
     toggleChart.value==name ? toggleChart.value = null : toggleChart.value = name;
     updateDataChart(name);
 }
 function updateDataChart(name){
-    var data = store.getTransactionsByMonth(name);
-    console.log(data);
+    var data = store.getTransactionsByMonth(name,year.value);
     s.value = {
         typeChart: 'bar',
         title: '',

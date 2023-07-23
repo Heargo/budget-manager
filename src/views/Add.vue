@@ -5,7 +5,7 @@
             <input type="number" step="0.01" id="name" v-model="amount" placeholder="XX€">
             <input type="text" id="number" v-model="name" placeholder="Name">
             <!-- <label for="category">Category</label> -->
-            <select id="category" ref="category">
+            <select id="category" ref="category" >
                 <option selected value="" disabled>Category</option>    
                 <option v-for="(category,name) in store.categories" :value="name" :key="category" :style="{'background-color':category.color}">{{name}}</option>
             </select>
@@ -29,10 +29,11 @@ var date = ref(null);
 const router = useRouter()
 
 const addTransaction = function() {
-    if (amount.value==0 || name.value=="" || category.value=="" || name.value==null || category.value==null) {
+    if (amount.value==0 || name.value=="" || category.value.value=="" || name.value==null || category.value.value==null) {
         alert("Please fill all fields");
         return;
     }
+    console.log(category.value)
     if(date.value=="" || date.value==null){
         date.value = store.convertDateToTxt(new Date());
     }
