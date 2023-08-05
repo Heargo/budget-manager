@@ -194,7 +194,7 @@ export const useStore = defineStore('main', {
                 });
             }
         },
-        getTransactionsByCategory(showSavings,month){
+        getTransactionsByCategory(showSavings,month,year=this.year){
             
             //get all months categories
             var x = Object.keys(this.categories);
@@ -212,13 +212,13 @@ export const useStore = defineStore('main', {
             this.transactions.forEach(tr => {
                 //get index of category
                 var index = x.indexOf(tr.category);
-                if(index>=0 && tr.date.split("-")[1] == month){
+                if(index>=0 && tr.date.split("-")[1] == month && tr.date.split("-")[0] == year){
                     values[parseInt(index)] += parseFloat(tr.amount);
                 }
             });
             //if no monthly budget for the month add one.
-            var monthlyBudget = this.transactions.filter(transaction => transaction.category === "monthly budget" && transaction.date.split("-")[1] == month);
-            // console.log("monthlyBudget for "+month,monthlyBudget);
+            var monthlyBudget = this.transactions.filter(transaction => transaction.category === "monthly budget" && transaction.date.split("-")[1] == month && transaction.date.split("-")[0] == year);
+            //console.log("monthlyBudget for "+month,monthlyBudget);
             if(monthlyBudget.length==0 && this.getCurrentSavings()>0){
                 // console.log("no monthly budget for the month, adding one");
                 //transfert remaining budget from previous month to savings before 
